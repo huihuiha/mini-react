@@ -1,12 +1,20 @@
 import { createElement, createTextNode } from "./ReactDom.js";
 
 let nextWorkOfUnit = null;
+
+/**
+ * 工作循环
+ */
 function workLoop(deadline) {
   let shouldYield = false;
 
   while (nextWorkOfUnit && !shouldYield) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
     shouldYield = deadline.timeRemaining() < 1;
+  }
+
+  if (!nextWorkOfUnit && root) {
+    commitRoot();
   }
 
   requestIdleCallback(workLoop);
@@ -22,32 +30,31 @@ function workLoop(deadline) {
 function performWorkOfUnit(work) {
   if (!work.dom) {
     // 1. 创建DOM
-    const dom = (work.dom = work.type === "text")
-      ? document.createTextNode("")
-      : document.createElement(work.type);
-
-    work.parent.dom.appendChild(dom);
+    const dom = (work.dom =
+      work.type === "text"
+        ? document.createTextNode("")
+        : document.createElement(work.type));
 
     // 2. 添加属性
-    Object.keys(el.props).forEach((key) => {
+    Object.keys(work.props).forEach((key) => {
       if (key !== "children") {
-        dom[key] = el.props[key];
+        dom[key] = work.props[key];
       }
     });
   }
 
   // 3.转换链表，设置好指针
-  const children = el.props.children;
+  const children = work.props.children;
 
   // 记录上一个孩子节点
   let previousFiber = null;
 
-  children.forEach((child) => {
+  children.forEach((child, index) => {
     const fiber = {
       type: child.type,
       props: child.props,
       el: child,
-      dom,
+      dom: null,
       parent: work,
       sibling: null,
     };
@@ -73,17 +80,35 @@ function performWorkOfUnit(work) {
   return work.parent?.sibling;
 }
 
+// 例如闲时调用
 requestIdleCallback(workLoop);
 
-function render(el, container) {
+let root = null;
+
+export function render(el, container) {
   nextWorkOfUnit = {
-    el,
     dom: container,
-    props: el.props,
-    parent: null,
-    child: null,
-    sibling: null,
+    props: {
+      children: [el],
+    },
   };
+
+  // 设置root的值
+  console.log("设置root的值");
+  root = nextWorkOfUnit;
+}
+
+function commitRoot() {
+  commitWork(root.child);
+  root = null;
+}
+
+function commitWork(fiber) {
+  if (!fiber) return;
+  console.log(fiber);
+  fiber.parent.dom.append(fiber.dom);
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
 }
 
 const React = {

@@ -2,7 +2,10 @@ import React from './core/React.js'
 
 // const App = React.createElement('div', {id: 'app'}, 'Hello World', 'Hello World 2', React.createElement("div", {id: 'app2'}, 'Hello World 3'));
 
- const App = <div>123</div>
+ const App = <div>
+    123
+    <div>124124</div>
+ </div>
 
 
 export default App;

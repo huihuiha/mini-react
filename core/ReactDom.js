@@ -1,3 +1,5 @@
+import { render } from "./React.js";
+
 export function createTextNode(text) {
   return {
     type: "text",
@@ -18,27 +20,6 @@ export function createElement(type, props, ...children) {
       ),
     },
   };
-}
-
-function render(el, container) {
-  const { type, props } = el;
-
-  const dom =
-    type === "text"
-      ? document.createTextNode("")
-      : document.createElement(type);
-
-  Object.keys(props).map((key) => {
-    if (key !== "children") {
-      dom[key] = props[key];
-    }
-  });
-
-  props.children.forEach((child) => {
-    render(child, dom);
-  });
-
-  container.appendChild(dom);
 }
 
 const ReactDom = {
