@@ -94,7 +94,6 @@ export function render(el, container) {
   };
 
   // 设置root的值
-  console.log("设置root的值");
   root = nextWorkOfUnit;
 }
 
@@ -105,7 +104,6 @@ function commitRoot() {
 
 function commitWork(fiber) {
   if (!fiber) return;
-  console.log(fiber);
   fiber.parent.dom.append(fiber.dom);
   commitWork(fiber.child);
   commitWork(fiber.sibling);
