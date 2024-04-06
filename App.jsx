@@ -1,11 +1,17 @@
-import React from './core/React.js'
+import React from "./core/React.js";
 
-// const App = React.createElement('div', {id: 'app'}, 'Hello World', 'Hello World 2', React.createElement("div", {id: 'app2'}, 'Hello World 3'));
+function Counter({ count }) {
+  return <div>
+    Counter: {count}</div>;
+}
 
- const App = <div>
+const App = (
+  <div>
     123
     <div>124124</div>
- </div>
-
+    <Counter count={10}></Counter>
+    <Counter count={20}></Counter>
+  </div>
+);
 
 export default App;

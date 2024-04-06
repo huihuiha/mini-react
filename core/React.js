@@ -28,23 +28,29 @@ function workLoop(deadline) {
  * - 叔叔节点
  */
 function performWorkOfUnit(work) {
-  if (!work.dom) {
-    // 1. 创建DOM
-    const dom = (work.dom =
-      work.type === "text"
-        ? document.createTextNode("")
-        : document.createElement(work.type));
+  const isFunctionComponent = typeof work.type === "function";
 
-    // 2. 添加属性
-    Object.keys(work.props).forEach((key) => {
-      if (key !== "children") {
-        dom[key] = work.props[key];
-      }
-    });
+  if (!isFunctionComponent) {
+    if (!work.dom) {
+      // 1. 创建DOM
+      const dom = (work.dom =
+        work.type === "text"
+          ? document.createTextNode("")
+          : document.createElement(work.type));
+
+      // 2. 添加属性
+      Object.keys(work.props).forEach((key) => {
+        if (key !== "children") {
+          dom[key] = work.props[key];
+        }
+      });
+    }
   }
 
   // 3.转换链表，设置好指针
-  const children = work.props.children;
+  const children = isFunctionComponent
+    ? [work.type(work.props)]
+    : work.props.children;
 
   // 记录上一个孩子节点
   let previousFiber = null;
@@ -77,7 +83,14 @@ function performWorkOfUnit(work) {
     return work.sibling;
   }
 
-  return work.parent?.sibling;
+  let nextFiber = work;
+  while (nextFiber) {
+    if (nextFiber.sibling) {
+      return nextFiber.sibling;
+    }
+
+    nextFiber = nextFiber.parent;
+  }
 }
 
 // 例如闲时调用
@@ -104,7 +117,16 @@ function commitRoot() {
 
 function commitWork(fiber) {
   if (!fiber) return;
-  fiber.parent.dom.append(fiber.dom);
+
+  let firstParent = fiber.parent;
+  while (!firstParent.dom) {
+    firstParent = firstParent.parent;
+  }
+
+  if (fiber.dom) {
+    firstParent.dom.append(fiber.dom);
+  }
+
   commitWork(fiber.child);
   commitWork(fiber.sibling);
 }

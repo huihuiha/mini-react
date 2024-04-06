@@ -15,9 +15,11 @@ export function createElement(type, props, ...children) {
     type,
     props: {
       ...props,
-      children: children.map((child) =>
-        typeof child === "object" ? child : createTextNode(child)
-      ),
+      children: children.map((child) => {
+        const isTextNode =
+          typeof child === "string" || typeof child === "number";
+        return !isTextNode ? child : createTextNode(child);
+      }),
     },
   };
 }
