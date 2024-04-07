@@ -1,8 +1,11 @@
 import React from "./core/React.js";
 
 function Counter({ count }) {
-  return <div>
-    Counter: {count}</div>;
+  const handleClick = () => {
+    console.log("click");
+  };
+
+  return <div onClick={handleClick}>Counter: {count}</div>;
 }
 
 const App = (

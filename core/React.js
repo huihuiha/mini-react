@@ -41,7 +41,13 @@ function performWorkOfUnit(work) {
       // 2. 添加属性
       Object.keys(work.props).forEach((key) => {
         if (key !== "children") {
-          dom[key] = work.props[key];
+          // 对事件的处理
+          if (key.startsWith("on")) {
+            const eventType = key.slice(2).toLowerCase();
+            dom.addEventListener(eventType, work.props[key]);
+          } else {
+            dom[key] = work.props[key];
+          }
         }
       });
     }
